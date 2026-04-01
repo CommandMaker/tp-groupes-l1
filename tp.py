@@ -110,6 +110,61 @@ def Transpositions(s: Permutation) -> list[Transposition]:
 def Signature(s: Permutation) -> int:
     return (-1) ** len(Transpositions(s)) # pyright: ignore[reportAny]
 
-t = [3, 5, 1, 2, 0, 4, 6]
+
+def PGCD(a: int, b: int) -> int:
+    if a > b:
+        b,a = a,b
+
+    for i in range(a, 0, -1):
+        if a % i == 0 and b % i == 0:
+            return i
+
+    return -1 # How did you get here ?
+
+
+def PPCM(liste: list[int]) -> int:
+    if len(liste) < 3:
+        return -1
+
+    last_ppcm = liste[0] * liste[1] // PGCD(liste[0], liste[1])
+
+    for i in range(2, len(liste)):
+        last_ppcm = last_ppcm * liste[i] // PGCD(last_ppcm, liste[i])
+
+    return last_ppcm
+
+
+def Type(s: Permutation) -> list[int]:
+    type_t: list[int] = []
+    cycles = Cycle(s)
+    nb_cycles = len(cycles)
+
+    while len(type_t) < nb_cycles:
+        mini = len(cycles[0])
+        mini_i = 0
+
+        for i in range(1, len(cycles)):
+            if len(cycles[i]) < mini:
+                mini = len(cycles[i])
+                mini_i = i
+
+        type_t += [mini]
+        _ = cycles.pop(mini_i)
+
+    return type_t
+
+def Ordre(s: Permutation) -> int:
+    return PPCM(Type(s))
+
+
+def Conjuguer(s: Permutation, r: Permutation) -> Permutation:
+    return Composer(r, Composer(s, Inverser(s)))
+
+t = [2, 1, 7, 0, 5, 8, 6, 3, 4, 11, 10, 9]
 print(Cycle(t))
+print(Type(t))
+print(Ordre(t))
 print(Transpositions(t))
+print(PGCD(31, 62))
+print(PPCM([31, 62, 50, 8, 6]))
+
